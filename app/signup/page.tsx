@@ -2,6 +2,7 @@
 
 import { signup } from './actions'
 import { toast, Toaster } from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function SignUpPage() {
 const handleSubmit = async (formData: FormData) => {
@@ -63,6 +64,7 @@ const handleSubmit = async (formData: FormData) => {
           >
             Sign Up
           </button>
+          <p className='text-sm text-indigo-800'>Already have an account? <Link href="/login" className='text-indigo-800 underline hover:text-indigo-600 hover:underline underline-offset-2'>Sign in now!</Link></p>
         </form>
       </div>
     </div>
