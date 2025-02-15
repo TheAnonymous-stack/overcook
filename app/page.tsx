@@ -1,22 +1,24 @@
-"use client";
-import { useRouter } from "next/navigation";
-
 export default function Home() {
-  const router = useRouter();
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold">Welcome to My App</h1>
-      <p className="text-lg mt-4">Your ultimate Next.js + Supabase app</p>
-      <button
-        onClick={() => router.push("/login")}
-        className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-      >
-        Go to Login
-      </button>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfcfc] text-center px-4">
+      {/* Navbar */}
+      <nav className="absolute top-4 right-6 flex gap-6 text-lg font-medium">
+        <a href="/login" className="hover:underline">Login</a>
+        <a href="/signup" className="hover:underline">Signup</a>
+      </nav>
+      
+      {/* Main Content */}
+      <div className="flex flex-col items-center">
+        <img src="/logo.png" alt="Overcook Logo" className="w-40 h-40 mb-4" />
+        <p className="text-gray-500 text-xl sm:text-2xl">Discover. Cook. Savor.</p>
+        <h1 className="text-6xl sm:text-8xl font-bold text-black mt-4">Overcook.</h1>
+      </div>
     </div>
   );
 }
+
+
+
 
 
 // import Image from "next/image";
