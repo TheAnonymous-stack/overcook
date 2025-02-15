@@ -56,7 +56,7 @@ export default function WeeklyPlan() {
 
   return (
     <div className="flex h-screen w-screen bg-white">
-      {/* Days Sidebar */}
+      {/* Days Sidebar */} 
       {showDaysSidebar && (
         <div className="w-1/5 bg-white p-6 shadow-lg min-h-screen">
           <div className="flex justify-between items-center mb-4">
