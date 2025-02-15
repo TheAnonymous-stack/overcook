@@ -1,23 +1,22 @@
 'use client'
-import { login } from './actions'
-import { LoginButton } from '../../components/LoginButton'
-import Link from 'next/link'
+
+import { signup } from './actions'
 import { toast, Toaster } from 'react-hot-toast'
 
-export default function LoginPage() {
-  const handleSubmit = async (formData: FormData) => {
-    const result = await login(formData)
-    if (result?.error) {
-      toast.error(result.error)
-    }
-  }
+export default function SignUpPage() {
+const handleSubmit = async (formData: FormData) => {
+        const result = await signup(formData)
+        if (result?.error) {
+          toast.error(result.error)
+        }
+      }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Toaster />
+    <Toaster />
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome Home Cooks</h2>
-          <p className="mt-2 text-sm text-gray-600">Please sign in to Overcook</p>
+          <p className="mt-2 text-sm text-gray-600">Let's get you signed up for Overcook!</p>
         </div>
         <form className="mt-8 space-y-6" action={handleSubmit}>
           <div className="space-y-4">
@@ -45,17 +44,25 @@ export default function LoginPage() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirm Your Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
           </div>
-          <div className="flex flex-col space-y-4 w-full">
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Log in
-            </button>
-            <LoginButton />
-          </div>
-          <p className='text-sm text-indigo-800'>Don't have an account? <Link href="/signup" className='text-indigo-800 underline hover:text-indigo-600 hover:underline underline-offset-2'>Sign up now!</Link></p>
+          <button
+            type="submit"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Sign Up
+          </button>
         </form>
       </div>
     </div>
