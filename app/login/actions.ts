@@ -22,8 +22,24 @@ export async function login(formData: FormData) {
       error: error.message
     }
   } else {
-    revalidatePath('/', 'layout')
-    redirect('/setup')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      // Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('overcook_users')
+        .select()
+        .eq('id', user.id)
+        .single()
+
+      if (!existingUser) {
+        // Only insert if user doesn't exist
+        await supabase.from('overcook_users').insert([{ id: user.id }])
+        redirect('/setup')
+      } else {
+        redirect('/dashboard')
+      }
+    }
+    
   }
 
 

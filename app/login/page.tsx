@@ -18,6 +18,7 @@ export default function LoginPage() {
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome Home Cooks</h2>
           <p className="mt-2 text-sm text-gray-600">Please sign in to Overcook</p>
+          <p className="mt-2 text-sm text-gray-600">If you have just signed up, please confirm your email first.</p>
         </div>
         <form className="mt-8 space-y-6" action={handleSubmit}>
           <div className="space-y-4">

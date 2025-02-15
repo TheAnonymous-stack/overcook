@@ -36,9 +36,7 @@ export default function Page() {
   const handleSubmit =  async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      const { data, error } = await supabase
-      .from('overcook_users')
-      .update({ 
+      await supabase.from('overcook_users').update({ 
         allergies: allergies,
         dietary_preferences: dietaryPreferences,
         goals: goals
