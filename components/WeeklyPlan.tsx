@@ -2,8 +2,101 @@
 
 import { useState } from "react";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
+
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+
+const supabase = createClient();
+
+async function getUserAllergies(userId: string) {
+  const { data, error } = await supabase
+    .from("overcook_users")
+    .select("allergies")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user allergies:", error);
+    return null;
+  }
+  if (data.allergies.length === 0) {
+    return "";
+  }
+  return data.allergies.join(",").toLowerCase(); // returns string like "dairy, gluten"
+}
+
+async function getRandomRecipe(userId: string) {
+  const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
+  const allergies = await getUserAllergies(userId);
+
+  let url;
+  if (allergies == "") {
+    url = `https://api.spoonacular.com/recipes/random?number=21&apiKey=${apiKey}`;
+  } else {
+    url = `https://api.spoonacular.com/recipes/random?number=21&exclude-tags=${encodeURIComponent(allergies)}&apiKey=${apiKey}`;
+  }
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching recipe:", error);
+    return [];
+  }
+}
+
+
+function formatWeeklyPlan(recipeData: { recipes: any; }) {
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const formattedPlan: { [key: string]: any[] } = {};
+
+  // Extract the recipes list from the API response
+  const recipes = recipeData.recipes;
+
+  if (!recipes || recipes.length < 21) {
+    console.error("Not enough recipes returned from API");
+    return {};
+  }
+
+  // Assign 3 recipes per day
+  for (let i = 0; i < days.length; i++) {
+    formattedPlan[days[i]] = recipes.slice(i * 3, i * 3 + 3);
+  }
+
+  return formattedPlan; // Returns structured weekly plan
+}
+
+
+async function saveMealPlanToSupabase(userId: string) {
+  // Generate the formatted weekly plan
+  const recipeData = await getRandomRecipe(userId); // Fetch random recipes
+  const formattedPlan = formatWeeklyPlan(recipeData); // Format the recipes into a weekly plan
+
+  if (Object.keys(formattedPlan).length === 0) {
+    console.error("Formatted plan is empty. Skipping Supabase update.");
+    return;
+  }
+
+
+  const { error } = await supabase
+    .from("overcook_users")
+    .update({ curr_plan: formattedPlan }) // Store plan in the database
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Error saving meal plan to Supabase:", error);
+  } else {
+    console.log("Meal plan successfully saved to Supabase!");
+  }
+}
+
+
+
+
 
 export default function WeeklyPlan() {
   const [selectedDay, setSelectedDay] = useState("Monday");
@@ -44,19 +137,18 @@ export default function WeeklyPlan() {
 
   const scrollToNextWeek = () => {
     setCurrentWeek((prev) => prev + 1); // Increment the week
-    // Add logic here to load or fetch data for the next week
   };
 
   const scrollToPreviousWeek = () => {
     if (currentWeek > 1) {
       setCurrentWeek((prev) => prev - 1); // Decrement the week
-      // Add logic here to load or fetch data for the previous week
     }
   };
 
   return (
     <div className="flex h-screen w-screen bg-white">
-      {/* Days Sidebar */} 
+      
+      {/* Days Sidebar */}
       {showDaysSidebar && (
         <div className="w-1/5 bg-white p-6 shadow-lg min-h-screen">
           <div className="flex justify-between items-center mb-4">
@@ -72,15 +164,17 @@ export default function WeeklyPlan() {
             {days.map((day) => (
               <li
                 key={day}
-                className={`p-2 rounded-lg cursor-pointer text-black ${
-                  selectedDay === day ? "bg-gray-300 font-bold" : "hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-lg cursor-pointer text-black ${selectedDay === day ? "bg-gray-300 font-bold" : "hover:bg-gray-200"
+                  }`}
                 onClick={() => setSelectedDay(day)}
               >
                 {day}
               </li>
             ))}
           </ul>
+          <button className="mt-4 w-full px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600">
+            Feeling Lucky
+          </button>
         </div>
       )}
 
@@ -131,32 +225,6 @@ export default function WeeklyPlan() {
           </button>
         </div>
       </div>
-
-      {/* Groceries Sidebar */}
-      {showGroceriesSidebar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={toggleGroceriesSidebar}>
-          <div
-            className="fixed right-0 top-0 h-screen w-1/4 bg-white shadow-lg p-6 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-xl font-semibold mb-4 text-black">Groceries</h2>
-            <ul>
-              {meals[selectedDay]?.map((meal, index) => (
-                <li key={index} className="mb-2">
-                  <label className="flex items-center text-black">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      onChange={(e) => handleGroceryItemChange(meal, e.target.checked)}
-                    />
-                    {meal}
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
